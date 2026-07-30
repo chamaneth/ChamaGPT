@@ -9,7 +9,7 @@
     "questions": [
       {
         "question": "Who are you?",
-        "answer": "I'm Chamathka Nethmini, a final-year Information Technology undergraduate at the University of Moratuwa and a full-stack developer passionate about building AI-powered applications, intelligent systems, and user-focused digital experiences. I enjoy combining software engineering, artificial intelligence, and creative problem solving to build products that solve real-world problems."
+        "answer": "I'm Chamathka Nethmini, a final-year Information Technology undergraduate at the University of Moratuwa, building full-stack, AI-powered, and data engineering projects through personal and academic work. I enjoy combining software engineering, artificial intelligence, and data-driven problem solving to build products that solve real-world problems."
       },
       {
         "question": "Tell me about yourself.",
@@ -98,7 +98,6 @@
         "HTML",
         "CSS",
         "UI/UX Design"
-
       ],
       "questions": [
         {
@@ -151,7 +150,7 @@
         "Dependency Injection",
         "Unit Testing",
         "Integration Testing",
-        "Code Testing",       
+        "Code Testing",
         "Scalability",
         "Deployment",
         "Cloud Deployment",
@@ -178,8 +177,6 @@
           "question": "How do you design APIs?",
           "answer": "I design APIs by first understanding the application requirements, defining resources and endpoints, implementing proper request and response structures, validating inputs, handling errors, and ensuring secure communication between frontend and backend."
         }
-        
-        
       ]
     },
     "Database_Skills": {
@@ -203,7 +200,6 @@
         "Data Modeling",
         "SQL Query Optimization",
         "Database Normalization"
-
       ],
       "questions": [
         {
@@ -240,7 +236,6 @@
         "AI Ethics",
         "Computer Vision",
         "Data Analysis"
-        
       ],
       "questions": [
         {
@@ -320,7 +315,6 @@
         "Version Control",
         "Deployment Automation",
         "Cloud Migration"
-
       ],
       "questions": [
         {

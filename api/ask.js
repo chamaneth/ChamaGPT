@@ -1,8 +1,6 @@
 import portfolioData from "../src/data/data.json" with { type: "json" };
 
-// ===============================
-// BUILD KNOWLEDGE FROM JSON (full — used for normal chat)
-// ===============================
+
 
 function buildKnowledge(data) {
   function extract(value, title = "") {
@@ -50,13 +48,7 @@ function buildKnowledge(data) {
 
 const KNOWLEDGE = buildKnowledge(portfolioData);
 
-// ===============================
-// BUILD FLAT SKILLS INDEX
-// ===============================
-// Pulls every string from any "technologies" array anywhere in the JSON,
-// deduplicated. Gives the model an authoritative, unambiguous skills list
-// to check job requirements against, instead of relying on it to infer
-// skills correctly from long prose.
+
 
 function buildSkillsIndex(data) {
   const skills = new Set();
@@ -90,14 +82,7 @@ function buildSkillsIndex(data) {
 
 const SKILLS_INDEX = buildSkillsIndex(portfolioData);
 
-// ===============================
-// BUILD LEAN PROFILE (used for job-match — cuts token usage)
-// ===============================
-// Job matching only needs: identity, skill summaries, and project
-// overviews/technologies. It does NOT need every interview_questions /
-// technical_questions array, which make up most of KNOWLEDGE's bulk and
-// were pushing single requests to ~9,800 tokens (Groq free tier caps at
-// 12,000 TPM, so one request could nearly exhaust the whole budget).
+
 
 function buildLeanProfile(data) {
   let output = "";
@@ -156,9 +141,7 @@ function buildLeanProfile(data) {
 
 const LEAN_PROFILE = buildLeanProfile(portfolioData);
 
-// ===============================
-// NORMAL CHAT PROMPT
-// ===============================
+
 
 const SYSTEM_PROMPT = `
 You are ChamaGPT, the AI portfolio assistant representing Chamathka Nethmini.
@@ -185,9 +168,7 @@ Chamathka's Knowledge Base:
 ${KNOWLEDGE}
 `;
 
-// ===============================
-// JOB MATCH PROMPT (uses the lean profile, not full KNOWLEDGE)
-// ===============================
+
 
 const JOB_MATCH_PROMPT = `
 You are an AI recruiter assistant analyzing Chamathka Nethmini's profile against a job description.
