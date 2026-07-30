@@ -49,6 +49,7 @@ function buildKnowledge(data) {
 const KNOWLEDGE = buildKnowledge(portfolioData);
 
 
+
 function buildSkillsIndex(data) {
   const skills = new Set();
 
@@ -80,6 +81,63 @@ function buildSkillsIndex(data) {
 }
 
 const SKILLS_INDEX = buildSkillsIndex(portfolioData);
+
+
+
+function buildLeanProfile(data) {
+  let output = "";
+
+  // Identity
+  const identity = data?.Personal?.identity;
+  if (identity) {
+    output += `IDENTITY:\nName: ${identity.name}\nRole: ${identity.role}\nLocation: ${identity.location}\nStatus: ${identity.current_status}\n\n`;
+  }
+
+  // Career profile
+  if (data?.Career_Profile?.professional_summary) {
+    output += `PROFESSIONAL SUMMARY:\n${data.Career_Profile.professional_summary}\n\n`;
+  }
+
+  if (data?.Skills) {
+    output += `===== SKILLS =====\n\n`;
+    Object.entries(data.Skills).forEach(([category, val]) => {
+      const cleanCategory = category.replaceAll("_", " ").toUpperCase();
+      output += `${cleanCategory}:\n`;
+      if (val.summary) output += `${val.summary}\n`;
+      if (val.technologies) output += `Technologies: ${val.technologies.join(", ")}\n`;
+      output += `\n`;
+    });
+  }
+
+  ["Projects", "Projects_Additional"].forEach((group) => {
+    if (!data[group]) return;
+    output += `===== ${group.replaceAll("_", " ").toUpperCase()} =====\n\n`;
+    Object.entries(data[group]).forEach(([name, project]) => {
+      output += `${name.replaceAll("_", " ")}:\n`;
+      if (project.overview) output += `${project.overview}\n`;
+      const tech = Array.isArray(project.technologies)
+        ? project.technologies
+        : project.technologies
+        ? Object.values(project.technologies).flat()
+        : null;
+      if (tech) output += `Technologies: ${tech.join(", ")}\n`;
+      output += `\n`;
+    });
+  });
+
+  // Achievements
+  if (data?.Achievements) {
+    output += `===== ACHIEVEMENTS =====\n\n`;
+    data.Achievements.forEach((a) => {
+      output += `- ${a.title}: ${a.description}\n`;
+    });
+    output += `\n`;
+  }
+
+  return output;
+}
+
+const LEAN_PROFILE = buildLeanProfile(portfolioData);
 
 
 
@@ -123,10 +181,10 @@ MATCHING RULES (follow strictly):
    (exact match or close synonym, e.g. "CI/CD pipelines" matches "CI/CD",
    "Generative AI" matches "Generative AI" / "LLMs" / "LangChain").
 2. If a skill appears in the list above, it MUST go into "matchedSkills", never "gaps" —
-   even if the detailed profile text below describes it as an area still being deepened.
+   even if the profile text below describes it as an area still being deepened.
    Growing experience is still experience, not a gap.
 3. Only put something in "gaps" if it does NOT appear anywhere in the skills list
-   or the detailed profile below.
+   or the profile below.
 4. Do not infer gaps from cautious or humble language in the profile text
    (e.g. "still improving", "learning environments") — that describes tone, not absence of skill.
 
@@ -152,8 +210,8 @@ Format:
   "recommendation": ""
 }
 
-Chamathka's Detailed Profile:
-${KNOWLEDGE}
+Chamathka's Profile:
+${LEAN_PROFILE}
 `;
 
 
@@ -178,6 +236,35 @@ function detectJobDescription(text) {
   const matches = keywords.filter((word) => lower.includes(word));
 
   return matches.length >= 3;
+}
+
+
+
+async function callGroq(payload, retries = 2) {
+  const response = await fetch(
+    "https://api.groq.com/openai/v1/chat/completions",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+      },
+      body: JSON.stringify(payload),
+    }
+  );
+
+  if (response.status === 429 && retries > 0) {
+    const errorBody = await response.json().catch(() => null);
+    console.log("Groq rate limit hit, retrying:", errorBody?.error?.message);
+
+    const retryAfterMatch = errorBody?.error?.message?.match(/try again in ([\d.]+)s/);
+    const waitMs = retryAfterMatch ? parseFloat(retryAfterMatch[1]) * 1000 : 2000;
+
+    await new Promise((resolve) => setTimeout(resolve, waitMs + 250)); // small buffer
+    return callGroq(payload, retries - 1);
+  }
+
+  return response;
 }
 
 
@@ -213,27 +300,24 @@ export default async function handler(req, res) {
   ];
 
   try {
-    const response = await fetch(
-      "https://api.groq.com/openai/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: "llama-3.3-70b-versatile",
-          messages,
-          temperature: 0.7,
-          max_tokens: 1800,
-          ...(isJobMatch && { response_format: { type: "json_object" } }),
-        }),
-      }
-    );
+    const response = await callGroq({
+      model: "llama-3.3-70b-versatile",
+      messages,
+      temperature: 0.7,
+      max_tokens: isJobMatch ? 1000 : 1800,
+      ...(isJobMatch && { response_format: { type: "json_object" } }),
+    });
 
     if (!response.ok) {
       const errorText = await response.text();
       console.log("Groq Error:", errorText);
+
+      if (response.status === 429) {
+        return res.status(429).json({
+          error: "I'm getting a lot of questions right now — please try again in a few seconds.",
+        });
+      }
+
       return res.status(502).json({ error: "Upstream AI service error" });
     }
 
