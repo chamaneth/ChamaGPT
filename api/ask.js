@@ -1,12 +1,55 @@
-import portfolioData from '../src/data/data.json' assert { type: 'json' };
+import portfolioData from '../src/data/data.json' with { type: 'json' };
 
 function buildKnowledge(data) {
-  return Object.entries(data)
-    .map(([category, items]) => {
-      const qa = items.map(i => `Q: ${i.question}\nA: ${i.answer}`).join('\n');
-      return `[${category}]\n${qa}`;
-    })
-    .join('\n\n');
+  const chunks = [];
+
+  function extract(obj, path = "General") {
+
+    if (!obj) return;
+
+
+    if (Array.isArray(obj)) {
+
+      obj.forEach(item => {
+
+        if (item.question && item.answer) {
+
+          chunks.push(
+            `[${path}]
+Q: ${item.question}
+A: ${item.answer}`
+          );
+
+        }
+
+        extract(item, path);
+
+      });
+
+    } 
+    
+    else if (typeof obj === "object") {
+
+      Object.entries(obj).forEach(([key, value]) => {
+
+        extract(
+          value,
+          path === "General"
+            ? key
+            : `${path} > ${key}`
+        );
+
+      });
+
+    }
+
+  }
+
+
+  extract(data);
+
+
+  return chunks.join("\n\n");
 }
 
 const KNOWLEDGE = buildKnowledge(portfolioData);
@@ -51,23 +94,38 @@ function detectJobDescription(text) {
 }
 
 export default async function handler(req, res) {
+
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(405).json({
+      error: 'Method not allowed'
+    });
   }
+
 
   const { question, mode } = req.body;
 
+
   if (!question?.trim()) {
-    return res.status(400).json({ error: 'Question is required' });
+    return res.status(400).json({
+      error: 'Question is required'
+    });
   }
 
-  const isJobMatch = mode === 'job_match' || detectJobDescription(question);
+
+  const isJobMatch =
+    mode === 'job_match' ||
+    detectJobDescription(question);
+
+
 
   const messages = [
     {
       role: 'system',
-      content: isJobMatch ? JOB_MATCH_PROMPT : SYSTEM_PROMPT
+      content: isJobMatch
+        ? JOB_MATCH_PROMPT
+        : SYSTEM_PROMPT
     },
+
     {
       role: 'user',
       content: isJobMatch
@@ -76,41 +134,129 @@ export default async function handler(req, res) {
     }
   ];
 
+
+
   try {
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        messages,
-        max_tokens: 800,
-        temperature: 0.7
-      })
-    });
+
+    const response = await fetch(
+      'https://api.groq.com/openai/v1/chat/completions',
+      {
+        method:'POST',
+
+        headers:{
+          'Content-Type':'application/json',
+
+          'Authorization':
+            `Bearer ${process.env.GROQ_API_KEY}`
+        },
+
+
+        body: JSON.stringify({
+
+          model:'llama-3.3-70b-versatile',
+
+          messages,
+
+          max_tokens:1200,
+
+          temperature:0.7,
+
+
+          ...(isJobMatch
+            ? {
+                response_format:{
+                  type:'json_object'
+                }
+              }
+            : {})
+
+        })
+
+      }
+    );
+
+
 
     if (!response.ok) {
-      const err = await response.text();
-      return res.status(502).json({ error: `Groq error: ${err}` });
+
+      const err =
+        await response.text();
+
+
+      console.error(err);
+
+
+      return res.status(502).json({
+        error:`Groq error: ${err}`
+      });
+
     }
 
-    const data = await response.json();
-    const content = data.choices?.[0]?.message?.content ?? '';
+
+
+    const data =
+      await response.json();
+
+
+    const content =
+      data.choices?.[0]?.message?.content ?? "";
+
+
 
     if (isJobMatch) {
+
       try {
-        const parsed = JSON.parse(content);
-        return res.status(200).json({ type: 'job_match', data: parsed });
-      } catch {
-        return res.status(200).json({ type: 'chat', answer: content });
+
+        return res.status(200).json({
+
+          type:'job_match',
+
+          data:JSON.parse(content)
+
+        });
+
       }
+
+      catch {
+
+        return res.status(200).json({
+
+          type:'chat',
+
+          answer:content
+
+        });
+
+      }
+
     }
 
-    return res.status(200).json({ type: 'chat', answer: content });
 
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
+
+    return res.status(200).json({
+
+      type:'chat',
+
+      answer:content
+
+    });
+
+
+
   }
+
+
+  catch(err) {
+
+    console.error(err);
+
+
+    return res.status(500).json({
+
+      error:err.message
+
+    });
+
+  }
+
 }
