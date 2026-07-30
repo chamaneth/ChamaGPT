@@ -6,132 +6,345 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
 const portfolioData = JSON.parse(
-  readFileSync(join(__dirname, 'src/data/data.json'), 'utf-8')
+    readFileSync(join(__dirname, 'src/data/data.json'), 'utf-8')
 );
 
+
 function buildKnowledge(data) {
-  return Object.entries(data)
-    .map(([category, items]) => {
-      const qa = items.map(i => `Q: ${i.question}\nA: ${i.answer}`).join('\n');
-      return `[${category}]\n${qa}`;
-    })
-    .join('\n\n');
+    const chunks = [];
+
+    function extract(obj, path = "General") {
+        if (!obj) return;
+
+        if (Array.isArray(obj)) {
+            obj.forEach(item => {
+
+                if (item.question && item.answer) {
+                    chunks.push(
+                        `[${path}]
+Q: ${item.question}
+A: ${item.answer}`
+                    );
+                }
+
+                extract(item, path);
+            });
+        }
+
+        else if (typeof obj === "object") {
+
+            Object.entries(obj).forEach(([key, value]) => {
+
+                extract(
+                    value,
+                    path === "General"
+                        ? key
+                        : `${path} > ${key}`
+                );
+
+            });
+
+        }
+    }
+
+    extract(data);
+
+    return chunks.join("\n\n");
 }
+
 
 const KNOWLEDGE = buildKnowledge(portfolioData);
 
-const SYSTEM_PROMPT = `You are ChamaGPT, the AI portfolio assistant of Chamathka Nethmini.
-Answer questions about her in a warm, professional, and friendly tone.
-Always answer in first person as if you are Chamathka speaking.
-Only answer based on the information below. If something is not covered, say you'd love to share more in person.
 
-Here is everything you know about Chamathka:
-${KNOWLEDGE}`;
+console.log(
+    `Loaded knowledge: ${KNOWLEDGE.length} characters`
+);
 
-const JOB_MATCH_PROMPT = `You are ChamaGPT, the AI portfolio assistant of Chamathka Nethmini.
-A recruiter has shared a job description. Analyze it and match Chamathka's skills and projects to the role.
 
-Here is everything you know about Chamathka:
+
+const SYSTEM_PROMPT = `
+You are ChamaGPT, the AI portfolio assistant of Chamathka Nethmini.
+
+Your role:
+- Represent Chamathka professionally.
+- Answer recruiters, interviewers, and visitors.
+- Speak naturally in first person as Chamathka.
+- Give detailed but clear answers.
+- Use real project examples.
+- Never invent experience.
+
+If a question is not covered in the knowledge base, say:
+"I'd be happy to discuss more details about that during a conversation."
+
+Knowledge Base:
+
+${KNOWLEDGE}
+`;
+
+
+
+const JOB_MATCH_PROMPT = `
+You are ChamaGPT, an AI recruiter assistant representing Chamathka Nethmini.
+
+Analyze the given job description and compare it with Chamathka's skills,
+projects, and experience.
+
+Knowledge Base:
+
 ${KNOWLEDGE}
 
-Respond in this EXACT JSON format (no markdown, no extra text):
+
+Return ONLY valid JSON:
+
 {
-  "summary": "2-3 sentence overview of how well Chamathka fits this role",
-  "matchScore": <number 0-100>,
-  "matchedSkills": ["skill1", "skill2", ...],
-  "matchedProjects": [
-    { "name": "project name", "relevance": "one sentence why it's relevant" }
-  ],
-  "gaps": ["gap1", "gap2"],
-  "verdict": "Strong Match | Good Match | Partial Match | Not a Match"
-}`;
+  "summary": "",
+  "matchScore": 0,
+  "matchedSkills": [],
+  "matchedProjects": [],
+  "gaps": [],
+  "verdict": ""
+}
+`;
+
+
 
 function detectJobDescription(text) {
-  const jdKeywords = [
-    'responsibilities', 'requirements', 'qualifications', 'we are looking for',
-    'job description', 'role', 'position', 'candidate', 'experience required',
-    'must have', 'nice to have', 'what you will do', 'about the role',
-    'years of experience', 'bachelor', 'degree', 'salary', 'benefits',
-    'full-time', 'part-time', 'remote', 'hybrid', 'apply'
-  ];
-  const lower = text.toLowerCase();
-  const hits = jdKeywords.filter(k => lower.includes(k));
-  return hits.length >= 3;
+
+    const keywords = [
+        "responsibilities",
+        "requirements",
+        "qualifications",
+        "experience",
+        "candidate",
+        "position",
+        "role",
+        "job description",
+        "skills",
+        "must have",
+        "nice to have",
+        "apply"
+    ];
+
+
+    const lower = text.toLowerCase();
+
+    const matches = keywords.filter(word =>
+        lower.includes(word)
+    );
+
+
+    return matches.length >= 3;
 }
 
+
+
+
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 
+
+
 app.post('/api/ask', async (req, res) => {
-  const { question, mode } = req.body ?? {};
 
-  if (!question?.trim()) {
-    return res.status(400).json({ error: 'Question is required' });
-  }
+    const { question, mode } = req.body ?? {};
 
-  if (!process.env.GROQ_API_KEY) {
-    return res.status(500).json({ error: 'GROQ_API_KEY is not set on the server' });
-  }
 
-  const isJobMatch = mode === 'job_match' || detectJobDescription(question);
-
-  const messages = [
-    {
-      role: 'system',
-      content: isJobMatch ? JOB_MATCH_PROMPT : SYSTEM_PROMPT
-    },
-    {
-      role: 'user',
-      content: isJobMatch
-        ? `Here is the job description:\n\n${question}`
-        : question
-    }
-  ];
-
-  try {
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        messages,
-        max_tokens: 800,
-        temperature: 0.7,
-        ...(isJobMatch ? { response_format: { type: 'json_object' } } : {})
-      })
-    });
-
-    if (!response.ok) {
-      const err = await response.text();
-      console.error('Groq error:', err);
-      return res.status(502).json({ error: `Groq error: ${err}` });
+    if (!question?.trim()) {
+        return res.status(400).json({
+            error: "Question is required"
+        });
     }
 
-    const data = await response.json();
-    const content = data.choices?.[0]?.message?.content ?? '';
 
-    if (isJobMatch) {
-      try {
-        const parsed = JSON.parse(content);
-        return res.status(200).json({ type: 'job_match', data: parsed });
-      } catch {
-        return res.status(200).json({ type: 'chat', answer: content });
-      }
+
+    if (!process.env.GROQ_API_KEY) {
+
+        return res.status(500).json({
+            error: "GROQ_API_KEY missing"
+        });
+
     }
 
-    return res.status(200).json({ type: 'chat', answer: content });
-  } catch (err) {
-    console.error('Handler error:', err);
-    return res.status(500).json({ error: err.message });
-  }
+
+
+    const isJobMatch =
+        mode === "job_match" ||
+        detectJobDescription(question);
+
+
+
+    const messages = [
+
+        {
+            role: "system",
+            content: isJobMatch
+                ? JOB_MATCH_PROMPT
+                : SYSTEM_PROMPT
+        },
+
+
+        {
+            role: "user",
+            content: isJobMatch
+                ? `Job Description:\n${question}`
+                : question
+        }
+
+    ];
+
+
+
+    try {
+
+
+        const response = await fetch(
+            "https://api.groq.com/openai/v1/chat/completions",
+            {
+
+                method: "POST",
+
+                headers: {
+
+                    "Content-Type": "application/json",
+
+                    "Authorization":
+                        `Bearer ${process.env.GROQ_API_KEY}`
+
+                },
+
+
+                body: JSON.stringify({
+
+                    model: "llama-3.3-70b-versatile",
+
+                    messages,
+
+                    temperature: 0.7,
+
+                    max_tokens: 1200,
+
+
+                    ...(isJobMatch
+                        ? {
+                            response_format: {
+                                type: "json_object"
+                            }
+                        }
+                        : {})
+
+                })
+
+            }
+        );
+
+
+
+        if (!response.ok) {
+
+            const error =
+                await response.text();
+
+
+            console.error(
+                "Groq Error:",
+                error
+            );
+
+
+            return res.status(502).json({
+                error
+            });
+
+        }
+
+
+
+        const result =
+            await response.json();
+
+
+        const answer =
+            result.choices?.[0]?.message?.content || "";
+
+
+
+        if (isJobMatch) {
+
+            try {
+
+                return res.json({
+
+                    type: "job_match",
+
+                    data: JSON.parse(answer)
+
+                });
+
+            }
+
+            catch {
+
+                return res.json({
+
+                    type: "chat",
+
+                    answer
+
+                });
+
+            }
+
+        }
+
+
+
+        return res.json({
+
+            type: "chat",
+
+            answer
+
+        });
+
+
+
+    }
+
+
+    catch (error) {
+
+        console.error(
+            "Server Error:",
+            error
+        );
+
+
+        return res.status(500).json({
+
+            error: error.message
+
+        });
+
+    }
+
+
 });
 
-const PORT = process.env.PORT || 3001;
+
+
+
+const PORT =
+    process.env.PORT || 3001;
+
+
 app.listen(PORT, () => {
-  console.log(`ChamaGPT backend running on http://localhost:${PORT}`);
+
+    console.log(
+        `ChamaGPT backend running on http://localhost:${PORT}`
+    );
+
 });
