@@ -256,6 +256,7 @@
 
 .input-row {
   display: flex; align-items: flex-end; gap: 10px;
+  padding-right: 2px; /* optical compensation: round send-btn needs slightly less outer space than the rectangular textarea to *look* aligned with it */
 }
 .chat-input {
   flex: 1;
@@ -405,4 +406,19 @@
 @media (max-width: 400px) {
   .header-contacts { gap: 2px; }
   .contact-link { width: 28px; height: 28px; }
+}
+
+/* Very narrow widths: header wraps into two clean rows instead of squishing/overlapping */
+@media (max-width: 340px) {
+  .header-inner {
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+  .header-left { flex: 1 1 100%; }
+  .header-right {
+    flex: 1 1 100%;
+    justify-content: space-between;
+  }
+  .chamagoogle-badge { width: auto; padding: 6px 10px; }
+  .chamagoogle-badge span { display: inline; font-size: 11px; }
 }
