@@ -1,6 +1,8 @@
 import portfolioData from "../src/data/data.json" with { type: "json" };
 
-
+// ===============================
+// BUILD KNOWLEDGE FROM JSON (full — used for normal chat)
+// ===============================
 
 function buildKnowledge(data) {
   function extract(value, title = "") {
@@ -48,7 +50,13 @@ function buildKnowledge(data) {
 
 const KNOWLEDGE = buildKnowledge(portfolioData);
 
-
+// ===============================
+// BUILD FLAT SKILLS INDEX
+// ===============================
+// Pulls every string from any "technologies" array anywhere in the JSON,
+// deduplicated. Gives the model an authoritative, unambiguous skills list
+// to check job requirements against, instead of relying on it to infer
+// skills correctly from long prose.
 
 function buildSkillsIndex(data) {
   const skills = new Set();
@@ -82,7 +90,14 @@ function buildSkillsIndex(data) {
 
 const SKILLS_INDEX = buildSkillsIndex(portfolioData);
 
-
+// ===============================
+// BUILD LEAN PROFILE (used for job-match — cuts token usage)
+// ===============================
+// Job matching only needs: identity, skill summaries, and project
+// overviews/technologies. It does NOT need every interview_questions /
+// technical_questions array, which make up most of KNOWLEDGE's bulk and
+// were pushing single requests to ~9,800 tokens (Groq free tier caps at
+// 12,000 TPM, so one request could nearly exhaust the whole budget).
 
 function buildLeanProfile(data) {
   let output = "";
@@ -98,6 +113,7 @@ function buildLeanProfile(data) {
     output += `PROFESSIONAL SUMMARY:\n${data.Career_Profile.professional_summary}\n\n`;
   }
 
+  // Skills — summary + technologies only, skip the "questions" arrays
   if (data?.Skills) {
     output += `===== SKILLS =====\n\n`;
     Object.entries(data.Skills).forEach(([category, val]) => {
@@ -109,6 +125,7 @@ function buildLeanProfile(data) {
     });
   }
 
+  // Projects (both Projects and Projects_Additional) — overview + tech only
   ["Projects", "Projects_Additional"].forEach((group) => {
     if (!data[group]) return;
     output += `===== ${group.replaceAll("_", " ").toUpperCase()} =====\n\n`;
@@ -139,7 +156,9 @@ function buildLeanProfile(data) {
 
 const LEAN_PROFILE = buildLeanProfile(portfolioData);
 
-
+// ===============================
+// NORMAL CHAT PROMPT
+// ===============================
 
 const SYSTEM_PROMPT = `
 You are ChamaGPT, the AI portfolio assistant representing Chamathka Nethmini.
@@ -166,7 +185,9 @@ Chamathka's Knowledge Base:
 ${KNOWLEDGE}
 `;
 
-
+// ===============================
+// JOB MATCH PROMPT (uses the lean profile, not full KNOWLEDGE)
+// ===============================
 
 const JOB_MATCH_PROMPT = `
 You are an AI recruiter assistant analyzing Chamathka Nethmini's profile against a job description.
@@ -187,6 +208,19 @@ MATCHING RULES (follow strictly):
    or the profile below.
 4. Do not infer gaps from cautious or humble language in the profile text
    (e.g. "still improving", "learning environments") — that describes tone, not absence of skill.
+5. Chamathka is a student — every skill she has comes from personal projects, academic
+   coursework, and self-directed learning, NOT professional/company work experience.
+   Reflect this honestly instead of hiding it:
+   - When describing matched skills or projects, note that they were built and demonstrated
+     through personal/academic projects (e.g. "demonstrated through her personal project X"),
+     since that is the truthful source of the experience.
+   - Do not claim or imply professional work experience she does not have.
+   - Stay calibrated: avoid inflating the match into a "perfect candidate" summary. If the role
+     values professional/team work experience, production-scale systems, or years of experience
+     she does not have, it is honest to note that her experience is project-based rather than
+     professional — this is a real, minor consideration for an internship match, not a
+     disqualifying gap. Mention it as context, not as a blocking weakness.
+   - The goal is an honest, credible assessment a recruiter would trust — not maximum flattery.
 
 Analyze:
 - Technical skills
@@ -214,6 +248,9 @@ Chamathka's Profile:
 ${LEAN_PROFILE}
 `;
 
+// ===============================
+// DETECT JOB POSTING
+// ===============================
 
 function detectJobDescription(text) {
   const keywords = [
@@ -238,7 +275,13 @@ function detectJobDescription(text) {
   return matches.length >= 3;
 }
 
-
+// ===============================
+// GROQ CALL WITH RETRY/BACKOFF ON RATE LIMIT
+// ===============================
+// Groq's free tier is capped at 12,000 tokens/minute (TPM). When a burst
+// of requests (or one large one) hits that cap, Groq returns 429 with a
+// "try again in Xs" message. Instead of failing immediately, wait the
+// suggested time (or a safe default) and retry once or twice.
 
 async function callGroq(payload, retries = 2) {
   const response = await fetch(
@@ -267,7 +310,9 @@ async function callGroq(payload, retries = 2) {
   return response;
 }
 
-
+// ===============================
+// VERCEL API FUNCTION
+// ===============================
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
