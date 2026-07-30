@@ -6,7 +6,6 @@
       "location": "Colombo, Sri Lanka",
       "current_status": "Final-year Bachelor of Information Technology undergraduate at University of Moratuwa"
     },
-
     "questions": [
       {
         "question": "Who are you?",
@@ -50,13 +49,10 @@
       }
     ]
   },
-
-
   "Education": {
     "degree": "Bachelor of Information Technology",
     "university": "University of Moratuwa",
     "status": "Final Year",
-
     "questions": [
       {
         "question": "Where do you study?",
@@ -80,8 +76,6 @@
       }
     ]
   },
-
-
   "Career_Profile": {
     "target_roles": [
       "Software Engineering Intern",
@@ -90,15 +84,11 @@
       "Data Engineer Intern",
       "Machine Learning Engineer Intern"
     ],
-
     "professional_summary": "A final-year Information Technology undergraduate specializing in full-stack development, AI applications, and data-driven systems. Experienced in building modern web applications, RAG-based AI tools, ETL pipelines, and IoT-integrated solutions through academic and personal projects."
   },
-
   "Skills": {
-
     "Frontend_Development": {
       "summary": "I have hands-on experience building modern, responsive web applications using React, Next.js, TypeScript, JavaScript, and Tailwind CSS. I focus on creating reusable components, clean user interfaces, good user experiences, and scalable frontend structures.",
-
       "technologies": [
         "React",
         "Next.js",
@@ -108,8 +98,8 @@
         "HTML",
         "CSS",
         "UI/UX Design"
-      ],
 
+      ],
       "questions": [
         {
           "question": "Explain your React experience.",
@@ -125,11 +115,8 @@
         }
       ]
     },
-
-
     "Backend_Development": {
       "summary": "I have experience developing backend systems using Java Spring Boot, Flask, FastAPI, and Node.js. I have built REST APIs, database integrations, authentication systems, and backend services for different applications.",
-
       "technologies": [
         "Java",
         "Spring Boot",
@@ -137,9 +124,47 @@
         "Flask",
         "FastAPI",
         "Node.js",
-        "REST APIs"
+        "REST APIs",
+        "Java Spring Boot",
+        "Python Flask",
+        "Python FastAPI",
+        "Node.js Express",
+        "Spring MVC",
+        "Spring Data JPA",
+        "Hibernate",
+        "JPA",
+        "RESTful API Design",
+        "API Development",
+        "Backend Architecture",
+        "Microservices",
+        "Authentication",
+        "Authorization",
+        "JWT Authentication",
+        "OAuth",
+        "Session Management",
+        "Middleware",
+        "Routing",
+        "API Documentation",
+        "Backend Security",
+        "Error Handling",
+        "Request Validation",
+        "Dependency Injection",
+        "Unit Testing",
+        "Integration Testing",
+        "Code Testing",       
+        "Scalability",
+        "Deployment",
+        "Cloud Deployment",
+        "Docker",
+        "CI/CD",
+        "Version Control",
+        "Git",
+        "GitHub",
+        "Backend Development",
+        "Web Development",
+        "Server-Side Development",
+        "Full-Stack Development"
       ],
-
       "questions": [
         {
           "question": "Explain your Spring Boot experience.",
@@ -153,21 +178,33 @@
           "question": "How do you design APIs?",
           "answer": "I design APIs by first understanding the application requirements, defining resources and endpoints, implementing proper request and response structures, validating inputs, handling errors, and ensuring secure communication between frontend and backend."
         }
+        
+        
       ]
     },
-
-
     "Database_Skills": {
       "summary": "I have experience working with relational and NoSQL databases, designing schemas, writing queries, managing relationships, and integrating databases with applications.",
-
       "technologies": [
         "MySQL",
         "PostgreSQL",
         "MongoDB",
+        "Firebase",
         "SQLite",
-        "SQL"
-      ],
+        "SQL",
+        "Database Management System (DBMS)",
+        "Entity-Relationship (ER) Modeling",
+        "Database Design",
+        "Schema Design",
+        "Relational Databases",
+        "NoSQL Databases",
+        "Database Administration",
+        "SQL Optimization",
+        "Database Security",
+        "Data Modeling",
+        "SQL Query Optimization",
+        "Database Normalization"
 
+      ],
       "questions": [
         {
           "question": "What databases have you worked with?",
@@ -179,11 +216,8 @@
         }
       ]
     },
-
-
     "AI_Machine_Learning": {
       "summary": "I have explored AI application development by building RAG-based systems, AI assistants, document intelligence tools, and integrating AI models into applications.",
-
       "technologies": [
         "Python",
         "LangChain",
@@ -192,9 +226,22 @@
         "Embeddings",
         "ChromaDB",
         "OpenCV",
-        "LLM APIs"
+        "LLM APIs",
+        "Generative AI",
+        "Large Language Models (LLMs)",
+        "Natural Language Processing (NLP)",
+        "AI Assistants",
+        "Prompt Engineering",
+        "Vector Databases",
+        "Information Retrieval",
+        "Machine Learning",
+        "Model Evaluation",
+        "Fine-tuning",
+        "AI Ethics",
+        "Computer Vision",
+        "Data Analysis"
+        
       ],
-
       "questions": [
         {
           "question": "Explain your AI experience.",
@@ -205,25 +252,44 @@
           "answer": "I have built RAG-based applications where documents are processed, converted into embeddings, stored in vector databases, and retrieved as relevant context before generating responses. This approach helps AI systems provide answers based on specific knowledge sources."
         },
         {
+          "question": "Explain your Generative AI experience.",
+          "answer": "I have hands-on experience building Generative AI applications using LLMs, prompt engineering, RAG architectures, embeddings, and vector databases. My projects include ChamaGPT, an AI portfolio assistant, and an AI Document Assistant using LangChain, Hugging Face models, and ChromaDB. These projects helped me understand how to integrate AI capabilities into real-world software products."
+        },
+        {
           "question": "Why are you interested in AI engineering?",
           "answer": "AI engineering allows me to combine software development with intelligence. I enjoy creating systems that can understand information, assist users, automate tasks, and provide personalized experiences."
         }
       ]
     },
-
-
     "Data_Engineering": {
       "summary": "I have experience building ETL workflows, processing datasets, transforming data, and creating analytics solutions.",
-
       "technologies": [
         "Python",
         "Pandas",
         "Azure Data Factory",
         "Azure SQL",
         "Power BI",
-        "SQL"
+        "SQL",
+        "Data Processing",
+        "Data Transformation",
+        "ETL Pipelines",
+        "Data Warehousing",
+        "Data Modeling",
+        "Big Data",
+        "Cloud Data Platforms",
+        "Data Integration",
+        "Data Quality",
+        "Business Intelligence",
+        "Data Visualization",
+        "Data Governance",
+        "ETL Development",
+        "Data Architecture",
+        "Data Pipelines",
+        "ETL Tools",
+        "Data Quality Assurance",
+        "Data Migration",
+        "Data Warehousing Concepts"
       ],
-
       "questions": [
         {
           "question": "Explain your data engineering experience.",
@@ -235,35 +301,45 @@
         }
       ]
     },
-
-
     "Cloud_DevOps": {
       "summary": "I have experience deploying applications, working with cloud services, and exploring modern development workflows.",
-
       "technologies": [
         "Azure",
         "Google Cloud Platform",
         "Docker",
+        "AWS",
+        "Git",
         "CI/CD",
-        "Vercel"
-      ],
+        "Vercel",
+        "Containerization",
+        "Cloud Computing",
+        "Virtualization",
+        "Cloud Services",
+        "Infrastructure Management",
+        "DevOps Practices",
+        "Version Control",
+        "Deployment Automation",
+        "Cloud Migration"
 
+      ],
       "questions": [
         {
           "question": "Explain your cloud experience.",
-          "answer": "I have worked with cloud technologies through application deployment and data engineering projects. My experience includes Azure Data Factory pipelines, Azure SQL, cloud-hosted applications, and deploying Next.js applications using platforms such as Vercel."
+          "answer": "I have hands-on cloud experience through both application deployment and data engineering projects. I built an Azure Data Factory ETL pipeline that ingests retail data from Azure Blob Storage into Azure SQL and connects with Power BI analytics. I have also deployed modern web applications using cloud platforms such as Vercel and explored Google Cloud services. While I am continuing to expand my enterprise cloud experience, I am comfortable working with cloud-based development workflows."
         },
         {
           "question": "Explain your Docker experience.",
-          "answer": "I have used Docker to understand containerized application development and improve consistency between development and deployment environments."
+          "answer": "I have practical experience using Docker concepts for application development and deployment workflows. I understand containerization, creating consistent development environments, and packaging applications. My Docker experience comes from personal projects and learning environments, and I am currently improving my knowledge of production-level container orchestration and deployment practices."
+        },
+        {
+          "question": "Explain your CI/CD experience.",
+          "answer": "I have experience with modern deployment workflows through platforms such as Vercel and Git-based development practices. I understand CI/CD concepts including automated builds, version control workflows, continuous deployment, and maintaining reliable release processes. I am currently expanding my experience with advanced CI/CD pipelines used in professional engineering teams."
         }
       ]
     }
   },
   "Projects": {
-
     "ChamaGPT": {
-
       "metadata": {
         "category": "AI Portfolio Assistant",
         "role": "Full Stack Developer",
@@ -278,11 +354,8 @@
           "Portfolio Technology"
         ]
       },
-
       "overview": "ChamaGPT is an AI-powered portfolio assistant designed to transform a traditional static portfolio into an interactive conversational experience. Instead of visitors reading through multiple pages, they can ask questions and explore my skills, projects, education, and experience through natural conversation.",
-
       "problem": "Traditional portfolios only display information. They require recruiters to manually search through sections to understand a developer's background. ChamaGPT solves this by providing a conversational interface where users can directly ask about projects, technologies, and experience.",
-
       "technologies": [
         "Next.js",
         "React",
@@ -291,7 +364,6 @@
         "Prompt Engineering",
         "Knowledge Base Design"
       ],
-
       "features": [
         "AI-powered conversational portfolio",
         "Project exploration through natural language",
@@ -299,29 +371,23 @@
         "Recruiter-friendly responses",
         "Interactive developer profile experience"
       ],
-
       "architecture": {
         "answer": "The application uses a frontend conversational interface connected with structured portfolio knowledge data. User queries are processed and relevant information is retrieved to generate contextual responses."
       },
-
       "interview_questions": [
-
         {
           "question": "Why did you build ChamaGPT?",
           "answer": "I built ChamaGPT because I wanted to make my portfolio more interactive and memorable. Instead of presenting information through static pages, I wanted recruiters and visitors to have a conversation and discover my experience naturally."
         },
-
         {
           "question": "What makes ChamaGPT different from a normal portfolio?",
           "answer": "A traditional portfolio only displays information, while ChamaGPT creates an interactive experience. Visitors can ask questions about my projects, skills, and background as if they are talking with an AI representation of my professional profile."
         },
-
         {
           "question": "What did you learn from building ChamaGPT?",
           "answer": "I learned that building AI applications requires more than connecting a model. Good knowledge organization, user experience design, prompt structure, and understanding user intent are equally important."
         }
       ],
-
       "future_improvements": [
         "Advanced RAG architecture",
         "Resume analysis",
@@ -330,10 +396,7 @@
         "Voice interaction"
       ]
     },
-
-
     "Smart_Park_and_Ride": {
-
       "metadata": {
         "category": "Final Year Project",
         "role": "Full Stack Developer",
@@ -348,11 +411,8 @@
           "Mobility"
         ]
       },
-
       "overview": "Smart Park and Ride Reservation System is a sensor-based smart parking solution designed for integrated transport hubs in Sri Lanka. The system helps commuters reserve parking spaces before arrival while providing real-time parking availability through IoT sensors.",
-
       "problem": "Traffic congestion is increased when commuters spend time searching for parking spaces. Existing parking facilities often lack real-time availability and automated management systems. This project aims to encourage park-and-ride adoption by making parking more convenient and efficient.",
-
       "technologies": {
         "frontend": [
           "Next.js",
@@ -372,7 +432,6 @@
           "Servo Motors"
         ]
       },
-
       "features": [
         "User registration and authentication",
         "Parking reservation",
@@ -382,39 +441,31 @@
         "Real-time slot monitoring",
         "Admin dashboard"
       ],
-
       "architecture": {
         "answer": "The system follows a full-stack architecture. The Next.js frontend communicates with Spring Boot REST APIs. The backend manages users, reservations, and parking data while IoT components provide real-time physical parking information."
       },
-
       "technical_questions": [
-
         {
           "question": "Explain your final year project.",
           "answer": "My final year project is a sensor-based smart park-and-ride reservation system designed for integrated transport hubs in Sri Lanka. Users can reserve parking slots online, receive a QR code, and use it for access verification. The system also integrates IoT sensors to monitor parking availability in real time."
         },
-
         {
           "question": "How does the QR gate system work?",
           "answer": "When a user reserves a parking slot, the system generates a unique QR code. At the entrance, an attendant scans the QR code. The backend verifies the reservation, and if it is valid, a servo motor automatically opens the gate."
         },
-
         {
           "question": "How does IoT integration work?",
           "answer": "Each parking slot uses sensors to detect occupancy. The sensor data can be sent to the system backend, allowing users to view real-time parking availability."
         },
-
         {
           "question": "Is the system fully automated?",
           "answer": "Currently, the system is semi-automated. Reservation management, QR verification, and gate control are automated, while some physical processes still require human involvement. Future improvements aim toward complete automation."
         },
-
         {
           "question": "What was the biggest challenge?",
           "answer": "The biggest challenge was integrating software with hardware components. Building the system required considering communication between the application layer and physical devices while keeping the architecture maintainable."
         }
       ],
-
       "future_improvements": [
         "Automatic number plate recognition",
         "Mobile application",
@@ -423,10 +474,7 @@
         "Fully automated entry and exit"
       ]
     },
-
-
     "Superstore_ETL_Pipeline": {
-
       "metadata": {
         "category": "Data Engineering Project",
         "job_roles": [
@@ -438,11 +486,8 @@
           "Cloud Computing"
         ]
       },
-
       "overview": "An Azure Data Factory ETL pipeline that processes Superstore retail sales data from CSV files into Azure SQL and connects the cleaned data with Power BI analytics dashboards.",
-
       "problem": "Organizations often have raw data stored in different formats that cannot directly support analytics. This project demonstrates how automated pipelines can prepare data for decision-making.",
-
       "technologies": [
         "Azure Data Factory",
         "Azure Blob Storage",
@@ -450,37 +495,30 @@
         "Power BI",
         "CSV Data"
       ],
-
       "features": [
         "Data ingestion",
         "Automated ETL workflow",
         "Cloud data storage",
         "Analytics dashboard integration"
       ],
-
       "interview_questions": [
         {
           "question": "Explain your ETL pipeline.",
           "answer": "I built an Azure Data Factory pipeline that extracts retail sales data from CSV files stored in Azure Blob Storage, loads it into Azure SQL, and prepares it for Power BI visualization."
         },
-
         {
           "question": "Why did you choose Azure Data Factory?",
           "answer": "Azure Data Factory provides a visual and scalable approach for building data workflows. It allowed me to understand cloud-based ETL orchestration and data movement between services."
         },
-
         {
           "question": "What did you learn from this project?",
           "answer": "I gained practical understanding of cloud data engineering concepts including data ingestion, transformation workflows, cloud storage, databases, and analytics."
         }
       ]
     }
-
   },
   "Projects_Additional": {
-
     "AI_Document_Assistant": {
-
       "metadata": {
         "category": "AI Application",
         "role": "AI Developer",
@@ -490,11 +528,8 @@
           "Software Engineer Intern"
         ]
       },
-
       "overview": "An AI-powered document assistant that allows users to upload PDF documents and ask questions using natural language. The system uses Retrieval-Augmented Generation to retrieve relevant information from documents before generating answers.",
-
       "problem": "Reading and finding information inside large documents can be time-consuming. This project explores how AI can help users interact with documents more efficiently.",
-
       "technologies": [
         "Python",
         "LangChain",
@@ -503,7 +538,6 @@
         "Embeddings",
         "Gradio"
       ],
-
       "features": [
         "PDF document upload",
         "Document processing",
@@ -512,11 +546,9 @@
         "Question answering",
         "Context-based AI responses"
       ],
-
       "architecture": {
         "answer": "The system follows a RAG architecture. Documents are processed and split into smaller chunks, converted into embeddings, stored in ChromaDB, and retrieved when users ask questions. The retrieved context is then used to generate accurate responses."
       },
-
       "interview_questions": [
         {
           "question": "Why did you use RAG instead of directly asking an LLM?",
@@ -528,10 +560,7 @@
         }
       ]
     },
-
-
     "Global_Superstore_Dashboard": {
-
       "metadata": {
         "category": "Data Analytics Project",
         "job_roles": [
@@ -539,11 +568,8 @@
           "Data Engineer Intern"
         ]
       },
-
       "overview": "A Power BI analytics dashboard created using the Global Superstore dataset to analyze sales performance, profitability, customer behavior, and regional trends.",
-
       "problem": "Businesses collect large amounts of data but need meaningful insights to support decisions. This project demonstrates transforming raw data into actionable analytics.",
-
       "technologies": [
         "Python",
         "Pandas",
@@ -551,7 +577,6 @@
         "DAX",
         "SQL"
       ],
-
       "features": [
         "Sales analysis",
         "Profit analysis",
@@ -559,7 +584,6 @@
         "Regional performance tracking",
         "Interactive dashboards"
       ],
-
       "interview_questions": [
         {
           "question": "How did you prepare the data?",
@@ -571,10 +595,7 @@
         }
       ]
     },
-
-
     "Hotel_Liyera": {
-
       "metadata": {
         "category": "Full Stack Web Application",
         "job_roles": [
@@ -582,11 +603,8 @@
           "Software Engineer Intern"
         ]
       },
-
       "overview": "Hotel Liyera is a hotel booking platform originally developed using HTML, CSS, and JavaScript and currently being modernized using Next.js, Flask, MongoDB, and Tailwind CSS.",
-
       "problem": "The project explores how digital platforms can simplify hotel information management and booking experiences.",
-
       "technologies": [
         "Next.js",
         "Flask",
@@ -594,14 +612,12 @@
         "Tailwind CSS",
         "JavaScript"
       ],
-
       "features": [
         "Hotel information management",
         "Responsive interface",
         "Booking functionality",
         "Backend API integration"
       ],
-
       "future_improvements": [
         "AI chatbot",
         "Recommendation system",
@@ -609,10 +625,7 @@
         "Booking analytics"
       ]
     },
-
-
     "StudyMate": {
-
       "metadata": {
         "category": "Productivity Application",
         "job_roles": [
@@ -620,9 +633,7 @@
           "Full Stack Developer"
         ]
       },
-
       "overview": "StudyMate is a student productivity application designed to help users manage tasks, track study sessions, and improve learning consistency.",
-
       "technologies": [
         "Java",
         "Spring Boot",
@@ -630,14 +641,12 @@
         "Tailwind CSS",
         "REST APIs"
       ],
-
       "features": [
         "Task management",
         "Study timers",
         "Progress tracking",
         "Productivity monitoring"
       ],
-
       "interview_questions": [
         {
           "question": "Why did you build StudyMate?",
@@ -645,23 +654,17 @@
         }
       ]
     },
-
-
     "AI_Interview_Question_Generator": {
-
       "metadata": {
         "category": "Generative AI Application"
       },
-
       "overview": "An AI-powered application that generates customized technical and behavioral interview questions based on job role, experience level, and domain.",
-
       "technologies": [
         "Python",
         "Gradio",
         "OpenAI GPT Models",
         "Hugging Face Spaces"
       ],
-
       "interview_questions": [
         {
           "question": "Why did you create this application?",
@@ -670,65 +673,47 @@
       ]
     }
   },
-
-
   "Achievements": [
-
     {
       "title": "NASA Space Apps Challenge 2025",
       "description": "Participated in NASA's global innovation challenge by developing technology-based solutions for real-world problems."
     },
-
     {
       "title": "SLIoT Challenge 2026",
       "description": "Participated in an IoT-focused innovation challenge exploring technology solutions."
     },
-
     {
       "title": "Syntax Squad People's Choice Award EXE 2025",
       "description": "Received recognition for project innovation and user appeal."
     },
-
     {
       "title": "STEM Mentor - CodeClub Sri Lanka",
       "description": "Supported students in learning programming and technology concepts."
     }
   ],
-
-
   "Behavioral_Interview": {
-
     "questions": [
-
       {
         "question": "Tell me about a challenge you faced.",
         "answer": "One significant challenge was integrating software systems with hardware components in my smart parking project. I had to understand both application development and hardware communication. I solved this by breaking the problem into smaller modules and testing each component independently."
       },
-
       {
         "question": "Tell me about teamwork experience.",
         "answer": "Through volunteering and project work, I have collaborated with different people, shared responsibilities, communicated ideas, and learned how important teamwork is for successful outcomes."
       },
-
       {
         "question": "Tell me about a time you learned a new technology quickly.",
         "answer": "While building AI projects, I had to quickly learn concepts such as RAG, embeddings, and vector databases. I approached this through documentation, experimentation, and building small prototypes before applying them to larger projects."
       },
-
       {
         "question": "How do you handle deadlines?",
         "answer": "I handle deadlines by breaking work into smaller tasks, prioritizing important features, tracking progress, and communicating challenges early."
       }
     ]
   },
-
-
   "Job_Matching": {
-
     "Software_Engineer": {
-
       "match_level": "Strong",
-
       "matching_skills": [
         {
           "skill": "Frontend Development",
@@ -739,7 +724,6 @@
             "StudyMate"
           ]
         },
-
         {
           "skill": "Backend Development",
           "evidence": [
@@ -748,7 +732,6 @@
             "REST services"
           ]
         },
-
         {
           "skill": "Database Experience",
           "evidence": [
@@ -759,12 +742,8 @@
         }
       ]
     },
-
-
     "AI_Engineer": {
-
       "match_level": "Strong",
-
       "matching_skills": [
         "RAG applications",
         "LangChain",
@@ -773,12 +752,8 @@
         "LLM integration"
       ]
     },
-
-
     "Data_Engineer": {
-
       "match_level": "Good",
-
       "matching_skills": [
         "Azure Data Factory",
         "ETL pipelines",
@@ -788,14 +763,9 @@
       ]
     }
   },
-
-
   "AI_Personality": {
-
     "name": "ChamaGPT",
-
     "purpose": "An AI representation of Chamathka Nethmini's professional journey, projects, skills, and experiences.",
-
     "communication_style": [
       "Professional",
       "Friendly",
@@ -803,7 +773,6 @@
       "Technically accurate",
       "Interview-ready"
     ],
-
     "response_rules": [
       "Answer naturally like Chamathka is explaining herself.",
       "Use real project examples whenever possible.",
@@ -811,7 +780,6 @@
       "Mention learning mindset when discussing new technologies.",
       "Prefer practical examples over generic statements."
     ],
-
     "signature_style": [
       "I built this project to solve...",
       "Through this experience I learned...",
@@ -819,5 +787,4 @@
       "If I were improving this further, I would..."
     ]
   }
-
 }

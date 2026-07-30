@@ -1,262 +1,259 @@
-import portfolioData from '../src/data/data.json' with { type: 'json' };
+import portfolioData from "../src/data/data.json" with { type: "json" };
+
+
 
 function buildKnowledge(data) {
-  const chunks = [];
+  function extract(value, title = "") {
+    let output = "";
 
-  function extract(obj, path = "General") {
+    if (value === null || value === undefined) return output;
 
-    if (!obj) return;
-
-
-    if (Array.isArray(obj)) {
-
-      obj.forEach(item => {
-
-        if (item.question && item.answer) {
-
-          chunks.push(
-            `[${path}]
-Q: ${item.question}
-A: ${item.answer}`
-          );
-
-        }
-
-        extract(item, path);
-
-      });
-
-    } 
-    
-    else if (typeof obj === "object") {
-
-      Object.entries(obj).forEach(([key, value]) => {
-
-        extract(
-          value,
-          path === "General"
-            ? key
-            : `${path} > ${key}`
-        );
-
-      });
-
+    // STRING / NUMBER
+    if (typeof value === "string" || typeof value === "number") {
+      output += `\n${title}:\n${value}\n\n`;
+      return output;
     }
 
+    // ARRAY
+    if (Array.isArray(value)) {
+      value.forEach((item) => {
+        if (typeof item === "string") {
+          output += `- ${item}\n`;
+        } else {
+          output += extract(item);
+        }
+      });
+      return output;
+    }
+
+    // OBJECT
+    if (typeof value === "object") {
+      Object.entries(value).forEach(([key, val]) => {
+        const cleanKey = key.replaceAll("_", " ").toUpperCase();
+
+        if (typeof val === "string" || typeof val === "number") {
+          output += `\n\n${cleanKey}:\n\n${val}\n\n`;
+        } else {
+          output += `\n\n===== ${cleanKey} =====\n\n`;
+          output += extract(val);
+        }
+      });
+    }
+
+    return output;
   }
 
-
-  extract(data);
-
-
-  return chunks.join("\n\n");
+  return extract(data);
 }
 
 const KNOWLEDGE = buildKnowledge(portfolioData);
 
-const SYSTEM_PROMPT = `You are ChamaGPT, the AI portfolio assistant of Chamathka Nethmini.
-Answer questions about her in a warm, professional, and friendly tone.
-Always answer in first person as if you are Chamathka speaking.
-Only answer based on the information below. If something is not covered, say you'd love to share more in person.
 
-Here is everything you know about Chamathka:
-${KNOWLEDGE}`;
+function buildSkillsIndex(data) {
+  const skills = new Set();
 
-const JOB_MATCH_PROMPT = `You are ChamaGPT, the AI portfolio assistant of Chamathka Nethmini.
-A recruiter has shared a job description. Analyze it and match Chamathka's skills and projects to the role.
+  function walk(value) {
+    if (Array.isArray(value)) {
+      value.forEach((item) => {
+        if (typeof item === "string") {
+          skills.add(item);
+        } else {
+          walk(item);
+        }
+      });
+      return;
+    }
 
-Here is everything you know about Chamathka:
-${KNOWLEDGE}
-
-Respond in this EXACT JSON format (no markdown, no extra text):
-{
-  "summary": "2-3 sentence overview of how well Chamathka fits this role",
-  "matchScore": <number 0-100>,
-  "matchedSkills": ["skill1", "skill2", ...],
-  "matchedProjects": [
-    { "name": "project name", "relevance": "one sentence why it's relevant" }
-  ],
-  "gaps": ["gap1", "gap2"],
-  "verdict": "Strong Match | Good Match | Partial Match | Not a Match"
-}`;
-
-function detectJobDescription(text) {
-  const jdKeywords = [
-    'responsibilities', 'requirements', 'qualifications', 'we are looking for',
-    'job description', 'role', 'position', 'candidate', 'experience required',
-    'must have', 'nice to have', 'what you will do', 'about the role',
-    'years of experience', 'bachelor', 'degree', 'salary', 'benefits',
-    'full-time', 'part-time', 'remote', 'hybrid', 'apply'
-  ];
-  const lower = text.toLowerCase();
-  const hits = jdKeywords.filter(k => lower.includes(k));
-  return hits.length >= 3;
-}
-
-export default async function handler(req, res) {
-
-  if (req.method !== 'POST') {
-    return res.status(405).json({
-      error: 'Method not allowed'
-    });
+    if (value && typeof value === "object") {
+      Object.entries(value).forEach(([key, val]) => {
+        if (key.toLowerCase() === "technologies") {
+          walk(val);
+        } else if (typeof val === "object") {
+          walk(val);
+        }
+      });
+    }
   }
 
+  walk(data);
+  return Array.from(skills).sort();
+}
+
+const SKILLS_INDEX = buildSkillsIndex(portfolioData);
+
+
+
+const SYSTEM_PROMPT = `
+You are ChamaGPT, the AI portfolio assistant representing Chamathka Nethmini.
+
+Your purpose is to answer questions from recruiters, visitors, and interviewers about Chamathka's professional profile.
+
+Personality:
+- Professional
+- Friendly
+- Natural
+- Interview-ready
+
+Rules:
+1. Always answer in first person as if Chamathka is speaking.
+   Example: "I have experience building..." NOT "Chamathka has experience building..."
+2. Use real project examples whenever possible.
+3. Explain technical concepts clearly.
+4. Do not exaggerate experience.
+5. If something is not available in the knowledge base, say:
+   "I have not specifically worked on that yet, but I am continuously learning and improving in that area."
+6. For interview questions, answer using: Situation, Technical explanation, Challenge, Learning.
+
+Chamathka's Knowledge Base:
+${KNOWLEDGE}
+`;
+
+
+
+const JOB_MATCH_PROMPT = `
+You are an AI recruiter assistant analyzing Chamathka Nethmini's profile against a job description.
+
+COMPLETE VERIFIED SKILLS LIST (Chamathka has hands-on experience with every item below,
+even if some are still developing/growing skills):
+
+${SKILLS_INDEX.join(", ")}
+
+MATCHING RULES (follow strictly):
+1. Before listing anything under "gaps", check if it appears in the skills list above
+   (exact match or close synonym, e.g. "CI/CD pipelines" matches "CI/CD",
+   "Generative AI" matches "Generative AI" / "LLMs" / "LangChain").
+2. If a skill appears in the list above, it MUST go into "matchedSkills", never "gaps" —
+   even if the detailed profile text below describes it as an area still being deepened.
+   Growing experience is still experience, not a gap.
+3. Only put something in "gaps" if it does NOT appear anywhere in the skills list
+   or the detailed profile below.
+4. Do not infer gaps from cautious or humble language in the profile text
+   (e.g. "still improving", "learning environments") — that describes tone, not absence of skill.
+
+Analyze:
+- Technical skills
+- Projects
+- Experience
+- Technologies
+- Missing requirements (only genuine, verified gaps — see rules above)
+
+Return ONLY valid JSON.
+
+Format:
+{
+  "summary": "",
+  "matchScore": 0,
+  "verdict": "",
+  "matchedSkills": [""],
+  "matchedProjects": [
+    { "name": "", "relevance": "" }
+  ],
+  "gaps": [""],
+  "recommendation": ""
+}
+
+Chamathka's Detailed Profile:
+${KNOWLEDGE}
+`;
+
+
+function detectJobDescription(text) {
+  const keywords = [
+    "responsibilities",
+    "requirements",
+    "qualifications",
+    "job description",
+    "candidate",
+    "experience",
+    "role",
+    "position",
+    "skills",
+    "apply",
+    "benefits",
+    "salary",
+    "intern",
+  ];
+
+  const lower = text.toLowerCase();
+  const matches = keywords.filter((word) => lower.includes(word));
+
+  return matches.length >= 3;
+}
+
+
+
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
 
   const { question, mode } = req.body;
 
-
-  if (!question?.trim()) {
-    return res.status(400).json({
-      error: 'Question is required'
-    });
+  if (!question || !question.trim()) {
+    return res.status(400).json({ error: "Question is required" });
   }
 
+  if (!process.env.GROQ_API_KEY) {
+    return res.status(500).json({ error: "Missing GROQ_API_KEY" });
+  }
 
-  const isJobMatch =
-    mode === 'job_match' ||
-    detectJobDescription(question);
-
-
+  const isJobMatch = mode === "job_match" || detectJobDescription(question);
 
   const messages = [
     {
-      role: 'system',
-      content: isJobMatch
-        ? JOB_MATCH_PROMPT
-        : SYSTEM_PROMPT
+      role: "system",
+      content: isJobMatch ? JOB_MATCH_PROMPT : SYSTEM_PROMPT,
     },
-
     {
-      role: 'user',
+      role: "user",
       content: isJobMatch
-        ? `Here is the job description:\n\n${question}`
-        : question
-    }
+        ? `Analyze this job description:\n\n${question}`
+        : question,
+    },
   ];
 
-
-
   try {
-
     const response = await fetch(
-      'https://api.groq.com/openai/v1/chat/completions',
+      "https://api.groq.com/openai/v1/chat/completions",
       {
-        method:'POST',
-
-        headers:{
-          'Content-Type':'application/json',
-
-          'Authorization':
-            `Bearer ${process.env.GROQ_API_KEY}`
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
         },
-
-
         body: JSON.stringify({
-
-          model:'llama-3.3-70b-versatile',
-
+          model: "llama-3.3-70b-versatile",
           messages,
-
-          max_tokens:1200,
-
-          temperature:0.7,
-
-
-          ...(isJobMatch
-            ? {
-                response_format:{
-                  type:'json_object'
-                }
-              }
-            : {})
-
-        })
-
+          temperature: 0.7,
+          max_tokens: 1800,
+          ...(isJobMatch && { response_format: { type: "json_object" } }),
+        }),
       }
     );
 
-
-
     if (!response.ok) {
-
-      const err =
-        await response.text();
-
-
-      console.error(err);
-
-
-      return res.status(502).json({
-        error:`Groq error: ${err}`
-      });
-
+      const errorText = await response.text();
+      console.log("Groq Error:", errorText);
+      return res.status(502).json({ error: "Upstream AI service error" });
     }
 
-
-
-    const data =
-      await response.json();
-
-
-    const content =
-      data.choices?.[0]?.message?.content ?? "";
-
-
+    const data = await response.json();
+    const answer = data.choices?.[0]?.message?.content || "";
 
     if (isJobMatch) {
-
       try {
-
         return res.status(200).json({
-
-          type:'job_match',
-
-          data:JSON.parse(content)
-
+          type: "job_match",
+          data: JSON.parse(answer),
         });
-
+      } catch {
+        return res.status(200).json({ type: "chat", answer });
       }
-
-      catch {
-
-        return res.status(200).json({
-
-          type:'chat',
-
-          answer:content
-
-        });
-
-      }
-
     }
 
-
-
-    return res.status(200).json({
-
-      type:'chat',
-
-      answer:content
-
-    });
-
-
-
+    return res.status(200).json({ type: "chat", answer });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Something went wrong. Please try again." });
   }
-
-
-  catch(err) {
-
-    console.error(err);
-
-
-    return res.status(500).json({
-
-      error:err.message
-
-    });
-
-  }
-
 }
