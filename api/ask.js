@@ -1,6 +1,53 @@
 import portfolioData from "../src/data/data.json" with { type: "json" };
 
+// ===============================
+// BASIC RATE LIMITING (in-memory, best-effort)
+// ===============================
+// NOTE: This is a lightweight, zero-setup rate limiter using an in-memory
+// Map. It works within a single warm serverless instance but resets on
+// cold starts and does NOT share state across multiple instances — so it
+// will catch rapid-fire spam most of the time, but is not a hard guarantee
+// under real load or distributed bot traffic.
+//
+// For proper protection (recommended before heavy public traffic), swap
+// this out for Upstash Redis + @upstash/ratelimit:
+//   1. npm install @upstash/ratelimit @upstash/redis
+//   2. Create a free Redis DB at https://console.upstash.com
+//   3. Add UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN to your
+//      Vercel env vars
+//   4. Replace checkRateLimit() below with:
+//        import { Ratelimit } from "@upstash/ratelimit";
+//        import { Redis } from "@upstash/redis";
+//        const ratelimit = new Ratelimit({
+//          redis: Redis.fromEnv(),
+//          limiter: Ratelimit.slidingWindow(5, "60 s"),
+//        });
+//        const { success } = await ratelimit.limit(ip);
 
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+const RATE_LIMIT_MAX_REQUESTS = 8; // max requests per IP per window
+
+const requestLog = new Map(); // ip -> array of timestamps
+
+function checkRateLimit(ip) {
+  const now = Date.now();
+  const timestamps = (requestLog.get(ip) || []).filter(
+    (t) => now - t < RATE_LIMIT_WINDOW_MS
+  );
+
+  if (timestamps.length >= RATE_LIMIT_MAX_REQUESTS) {
+    requestLog.set(ip, timestamps); // keep pruned list
+    return false;
+  }
+
+  timestamps.push(now);
+  requestLog.set(ip, timestamps);
+  return true;
+}
+
+// ===============================
+// BUILD KNOWLEDGE FROM JSON (full — used for normal chat)
+// ===============================
 
 function buildKnowledge(data) {
   function extract(value, title = "") {
@@ -48,7 +95,13 @@ function buildKnowledge(data) {
 
 const KNOWLEDGE = buildKnowledge(portfolioData);
 
-
+// ===============================
+// BUILD FLAT SKILLS INDEX
+// ===============================
+// Pulls every string from any "technologies" array anywhere in the JSON,
+// deduplicated. Gives the model an authoritative, unambiguous skills list
+// to check job requirements against, instead of relying on it to infer
+// skills correctly from long prose.
 
 function buildSkillsIndex(data) {
   const skills = new Set();
@@ -82,7 +135,14 @@ function buildSkillsIndex(data) {
 
 const SKILLS_INDEX = buildSkillsIndex(portfolioData);
 
-
+// ===============================
+// BUILD LEAN PROFILE (used for job-match — cuts token usage)
+// ===============================
+// Job matching only needs: identity, skill summaries, and project
+// overviews/technologies. It does NOT need every interview_questions /
+// technical_questions array, which make up most of KNOWLEDGE's bulk and
+// were pushing single requests to ~9,800 tokens (Groq free tier caps at
+// 12,000 TPM, so one request could nearly exhaust the whole budget).
 
 function buildLeanProfile(data) {
   let output = "";
@@ -141,7 +201,9 @@ function buildLeanProfile(data) {
 
 const LEAN_PROFILE = buildLeanProfile(portfolioData);
 
-
+// ===============================
+// NORMAL CHAT PROMPT
+// ===============================
 
 const SYSTEM_PROMPT = `
 You are ChamaGPT, the AI portfolio assistant representing Chamathka Nethmini.
@@ -168,7 +230,9 @@ Chamathka's Knowledge Base:
 ${KNOWLEDGE}
 `;
 
-
+// ===============================
+// JOB MATCH PROMPT (uses the lean profile, not full KNOWLEDGE)
+// ===============================
 
 const JOB_MATCH_PROMPT = `
 You are an AI recruiter assistant analyzing Chamathka Nethmini's profile against a job description.
@@ -300,10 +364,30 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
+  // Rate limit by IP — protects Groq token budget from bot/spam traffic
+  const ip =
+    req.headers["x-forwarded-for"]?.split(",")[0]?.trim() ||
+    req.socket?.remoteAddress ||
+    "unknown";
+
+  if (!checkRateLimit(ip)) {
+    return res.status(429).json({
+      error: "Too many requests — please slow down and try again in a minute.",
+    });
+  }
+
   const { question, mode } = req.body;
 
   if (!question || !question.trim()) {
     return res.status(400).json({ error: "Question is required" });
+  }
+
+  // Cap input length — prevents huge pasted text from blowing the token budget
+  const MAX_QUESTION_LENGTH = 3000;
+  if (question.length > MAX_QUESTION_LENGTH) {
+    return res.status(400).json({
+      error: `Question is too long. Please keep it under ${MAX_QUESTION_LENGTH} characters.`,
+    });
   }
 
   if (!process.env.GROQ_API_KEY) {
