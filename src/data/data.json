@@ -1,0 +1,97 @@
+{
+  "Personal": [
+    {"question":"Who are you?","answer":"I'm Chamathka Nethmini, a full-stack developer building AI-powered web experiences."},
+    {"question":"Tell me about yourself.","answer":"Final-year BIT student at University of Moratuwa, passionate about AI products and digital experiences."},
+    {"question":"Where are you from?","answer":"Colombo, Sri Lanka."},
+    {"question":"What inspires your work?","answer":"Making technology useful, intuitive, and human-friendly."},
+    {"question":"What motivates you as a developer?","answer":"Solving real problems and making users' lives easier."},
+    {"question":"What values guide your work?","answer":"Curiosity, consistency, creativity, and impact."}
+  ],
+  "Education": [
+    {"question":"Where do you study?","answer":"University of Moratuwa, BIT final year."},
+    {"question":"Tell me about your education journey.","answer":"O/Ls at Kottawa Dharmapala Maha Vidyalaya, A/Ls at Vidyakara National Girls' School, now BIT at Moratuwa."}
+  ],
+  "Volunteering": [
+    {"question":"Do you do any volunteering work?","answer":"Volunteer at StemUp Code Club and Lead of Content Documentary Team."},
+    {"question":"Do you enjoy leadership roles?","answer":"Yes, guiding collaboration and organizing ideas through volunteering and team work."}
+  ],
+  "Skills": [
+    {"question":"What are your software development skills?","answer":"React, Next.js, Tailwind CSS, TypeScript, JavaScript, Node.js, Flask, FastAPI, API integration, HTML/CSS, MongoDB, PostgreSQL, SQL, Docker, CI/CD, GCP, UI/UX design."},
+    {"question":"What are your data engineering (DE) and AI skills?","answer":"Python, LangChain, RAG pipelines, Hugging Face, OpenCV, embeddings, ChromaDB, ETL, vector DBs, AI apps, SQL, MongoDB, PostgreSQL, cloud deployment."},
+    {"question":"Do you have IoT or embedded hardware skills?","answer":"Yes — servo motors for automated access control and IR sensors for real-time occupancy detection, applied in my final year project, a sensor-based smart park-and-ride reservation system."},
+    {"question":"What is your full skill set?","answer":"Full-stack web development (React, Next.js, Node.js, Flask, FastAPI), AI/ML (LangChain, RAG, Hugging Face, embeddings, ChromaDB), data engineering (ETL, SQL, cloud deployment), and IoT/hardware integration (servo motors, IR sensors) as shown in my final year project."}
+  ],
+  "Problem-Solving": [
+    {"question":"Can you give an example of problem-solving?","answer":"Built an open-source GPA calculator for juniors to calculate and improve their GPA."},
+    {"question":"Can you give an example of AI work?","answer":"Built an AI document assistant using LangChain and RAG to answer questions from Documents like Notebook LLM."}
+  ],
+  "Projects": [
+    {"question":"Tell me about your projects.","answer":"I built ChamaGPT, a personal AI assistant, and ChamaGoogle, a Google-style portfolio interface. I've also worked on data engineering pipelines, AI tools, a hotel booking platform, a student productivity app, an e-commerce site, and a smart transport reservation system."},
+    {"question":"Why did you build ChamaGPT?","answer":"To make my portfolio interactive, letting people ask questions and explore my work."},
+    {"question":"What technologies did you use for ChamaGoogle?","answer":"Next.js frontend and GitHub API to dynamically show projects."},
+    {"question":"How did you retrieve your projects on ChamaGoogle?","answer":"Used GitHub API to fetch repositories automatically."},
+    {"question":"Why did you choose Next.js for ChamaGoogle?","answer":"For server-side rendering, fast performance, and easy API integration."},
+    {"question":"What did building ChamaGoogle teach you?","answer":"Data structuring, API use, and building a simple, accessible portfolio."},
+
+    {"question":"Tell me about your Superstore ETL Pipeline project.","answer":"An Azure Data Factory pipeline that ingests, transforms, and loads Superstore retail sales data from CSV into Azure SQL, feeding a downstream Power BI analytics dashboard. It uses a Copy Data activity to move data from Azure Blob Storage into Azure SQL, and was validated end-to-end through ADF's debug and output logs."},
+    {"question":"What tech stack did you use for the Superstore ETL Pipeline?","answer":"Azure Data Factory for orchestration, Azure Blob Storage as the source linked service, Azure SQL as the sink, and Power BI for the downstream dashboard."},
+    {"question":"What is the GitHub link for the Superstore ETL Pipeline?","answer":"https://github.com/chamaneth/superstore-etl-pipeline"},
+
+    {"question":"Tell me about your AI Document Assistant project.","answer":"A local AI-powered tool that lets users upload PDFs and interact with them using natural language queries, answering questions based on the document's content, similar to Notebook LLM."},
+    {"question":"What technologies power your AI Document Assistant?","answer":"LangChain, ChromaDB, and Hugging Face models for embeddings and text generation, with an interactive web UI built using Gradio."},
+    {"question":"What is the GitHub link for the AI Document Assistant?","answer":"https://github.com/chamaneth/ai-document-assistant"},
+
+    {"question":"Tell me about your Global Superstore Dashboard project.","answer":"A Power BI dashboard built on the Global Superstore dataset from Kaggle, demonstrating data cleaning, transformation, and retail sales visualization. It's an intern-ready portfolio project highlighting key metrics, trends, and top performers."},
+    {"question":"How did you clean and transform the Global Superstore data?","answer":"Cleaned the data in Python using pandas by removing duplicates, fixing data types, and creating a TotalSales column, then added calculated columns and DAX measures like TotalSalesMeasure, TotalProfitMeasure, and ProfitMargin in Power BI."},
+    {"question":"What visuals are in the Global Superstore Dashboard?","answer":"A sales trend line chart, profit by category bar chart, top 10 customers column chart, a regional sales map, a discount vs sales scatter plot, and KPI cards for total sales, profit, quantity, and average discount, with slicers, filters, and drill-through interactivity."},
+    {"question":"What is the GitHub link for the Global Superstore Dashboard?","answer":"https://github.com/chamaneth/powerbi-superstore-analysis"},
+
+    {"question":"Tell me about the Hotel Liyera project.","answer":"A hotel booking platform originally built over a year ago with HTML, CSS, and JavaScript, now being re-developed with modern technologies including Next.js, Flask, MongoDB, and Tailwind CSS."},
+    {"question":"What features does Hotel Liyera have?","answer":"A responsive Next.js and Tailwind CSS frontend, Flask backend APIs, MongoDB database management, and a basic hotel booking and information system."},
+    {"question":"What's planned for Hotel Liyera's future?","answer":"An AI-integrated chatbot, a machine learning module for personalized recommendations, an admin dashboard, and data analytics on bookings and customer behavior."},
+    {"question":"What is the GitHub link for Hotel Liyera?","answer":"https://github.com/chamaneth/Hotel_Liyera and the updated version at https://github.com/chamaneth/hotel_liyera_update"},
+
+    {"question":"Tell me about StudyMate.","answer":"A student-focused productivity app that helps manage tasks, track study sessions, and boost focus, built with Java Spring Boot, React, and REST APIs."},
+    {"question":"What can users do in StudyMate?","answer":"Add, delete, and complete tasks, start and stop timers to track study time per task, and view total study time for each task."},
+    {"question":"What tech stack powers StudyMate?","answer":"Java 17 and Spring Boot with Maven on the backend, React and Tailwind CSS on the frontend."},
+    {"question":"What's planned for StudyMate's future?","answer":"A daily/weekly study stats dashboard, gamification with points and achievements, dark mode, database integration, and AI-based study recommendations."},
+    {"question":"What is the GitHub link for StudyMate?","answer":"https://github.com/chamaneth/StudyMate"},
+
+    {"question":"Tell me about your Mini Data Engineering Project.","answer":"A simple ETL pipeline built with Python, Pandas, Matplotlib, and SQLite that extracts raw CSV data, cleans and transforms it, performs analysis, visualizes patterns, and loads the cleaned data into a SQLite database."},
+    {"question":"What does your Mini Data Engineering Project demonstrate?","answer":"Core data engineering fundamentals: extract-transform-load workflow, data cleaning, aggregation analysis, chart visualization, and database storage."},
+    {"question":"What is the GitHub link for the Mini Data Engineering Project?","answer":"https://github.com/chamaneth/Sales-Data-Mini-Pipeline"},
+
+    {"question":"Tell me about your AI Interview Question Generator.","answer":"An AI-powered web app that generates customized technical and behavioral interview questions based on job role, experience level, and domain, using OpenAI's GPT-3.5 Turbo model."},
+    {"question":"How is the AI Interview Question Generator built and deployed?","answer":"Built with Python and Gradio for an interactive UI, powered by OpenAI's GPT-3.5 Turbo, and deployed on Hugging Face Spaces for easy access."},
+    {"question":"Where can I try the AI Interview Question Generator?","answer":"There's a live demo on Hugging Face Spaces: https://huggingface.co/spaces/ChamaNethmini/ai-interview-question-generator, and the code is at https://github.com/chamaneth/ai-interview-question-generator"},
+
+    {"question":"Tell me about Ninety6 Clothing Store.","answer":"An e-commerce website for a fictional clothing brand, simulating a real-world online store with dynamic product listings, a shopping cart, and a responsive design."},
+    {"question":"What tech stack did you use for Ninety6?","answer":"PHP and MySQL on the back end, HTML, CSS, JavaScript, and jQuery on the front end, built and tested with VS Code, XAMPP, and phpMyAdmin."},
+    {"question":"What is the GitHub link for Ninety6?","answer":"https://github.com/chamaneth/znine"},
+
+    {"question":"Tell me about your final year project.","answer":"A sensor-based smart park-and-ride reservation system for integrated transport hubs in Sri Lanka, designed to motivate commuters to use park-and-ride facilities and reduce congestion. When a user makes a reservation, they receive a QR code; when an attendant scans that QR code, the gate opens automatically via a servo motor. Parking slots use IR sensors to detect real-time occupancy. It's currently semi-automated, with a roadmap to become a fully automated, sensor-driven system."},
+    {"question":"What technologies does your final year project use?","answer":"Spring Boot for the backend, Next.js and Tailwind CSS for the frontend, and IoT hardware — servo motors for automated gate control and IR sensors on each slot for real-time occupancy detection — for the physical, sensor-based side of the system."},
+    {"question":"Do you have IoT or hardware/sensor experience?","answer":"Yes — my final year project is a hardware-integrated IoT system. It uses IR sensors on parking slots for real-time occupancy detection and a servo motor to automatically open the gate once an attendant scans a user's reservation QR code."},
+    {"question":"Do you have experience with automation or cloud-native systems?","answer":"Yes, in two ways: my final year project automates physical access control (QR-code-triggered servo gates and IR sensor-based slot detection), and I've also built cloud data automation with an Azure Data Factory ETL pipeline that automates ingesting and loading retail data into Azure SQL."},
+    {"question":"How does the QR code and gate system work in your final year project?","answer":"When a commuter makes a reservation, the system generates a QR code for them. On arrival, an attendant scans the QR code, which verifies the reservation and automatically triggers a servo motor to open the gate — no manual gate control needed."},
+    {"question":"How does slot detection work in your final year project?","answer":"Each parking slot has an IR sensor that detects in real time whether the slot is occupied or free, so the reservation system always reflects live slot availability."},
+    {"question":"Is your final year project fully automated?","answer":"It's semi-automated right now — QR verification and gate opening are automated, and slots are monitored live via IR sensors. The plan is to expand this into a fully automated, end-to-end sensor-driven system."},
+    {"question":"Can I see a live version of your final year project?","answer":"Yes, it's deployed at https://smartpark-reservation-frontend.vercel.app/"}
+  ],
+  "Work Style": [
+    {"question":"How do you approach problem solving?","answer":"Understand the problem, break it down, research, prototype, and build solutions."},
+    {"question":"What is your development workflow like?","answer":"Research, UI planning, component design, backend, API integration, testing, deployment."},
+    {"question":"What kind of teams do you enjoy working with?","answer":"Collaborative, curious, and growth-driven teams."},
+    {"question":"Do you enjoy learning new technologies?","answer":"Yes, exploring new AI frameworks, cloud tools, and workflows."},
+    {"question":"How do you balance design and development?","answer":"Think from the user's perspective, then implement scalable, maintainable code."},
+    {"question":"What role does creativity play in your work?","answer":"I make products functional, memorable, and engaging."}
+  ],
+  "Hobbies & Languages": [
+    {"question":"What are your hobbies?","answer":"Photography and learning new languages (Japanese, Chinese, French)."},
+    {"question":"What languages do you know?","answer":"Japanese, Chinese, and French."}
+  ],
+  "Portfolio": [
+    {"question":"What makes your portfolio different?","answer":"Interactive experiences like ChamaGPT instead of static pages."},
+    {"question":"What do you want people to remember about your work?","answer":"It's intelligent, personal, creative, usable, and memorable."}
+  ]
+}
