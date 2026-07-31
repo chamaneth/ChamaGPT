@@ -1,7 +1,8 @@
 import portfolioData from "../src/data/data.json" with { type: "json" };
 
-const RATE_LIMIT_WINDOW_MS = 60 * 1000;
-const RATE_LIMIT_MAX_REQUESTS = 8;
+
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; 
+const RATE_LIMIT_MAX_REQUESTS = 30; 
 
 const requestLog = new Map();
 
@@ -12,7 +13,7 @@ function checkRateLimit(ip) {
   );
 
   if (timestamps.length >= RATE_LIMIT_MAX_REQUESTS) {
-    requestLog.set(ip, timestamps);
+    requestLog.set(ip, timestamps); 
     return false;
   }
 
@@ -21,17 +22,21 @@ function checkRateLimit(ip) {
   return true;
 }
 
+
+
 function buildKnowledge(data) {
   function extract(value, title = "") {
     let output = "";
 
     if (value === null || value === undefined) return output;
 
+    // STRING / NUMBER
     if (typeof value === "string" || typeof value === "number") {
       output += `\n${title}:\n${value}\n\n`;
       return output;
     }
 
+    // ARRAY
     if (Array.isArray(value)) {
       value.forEach((item) => {
         if (typeof item === "string") {
@@ -43,6 +48,7 @@ function buildKnowledge(data) {
       return output;
     }
 
+    // OBJECT
     if (typeof value === "object") {
       Object.entries(value).forEach(([key, val]) => {
         const cleanKey = key.replaceAll("_", " ").toUpperCase();
@@ -63,6 +69,8 @@ function buildKnowledge(data) {
 }
 
 const KNOWLEDGE = buildKnowledge(portfolioData);
+
+
 
 function buildSkillsIndex(data) {
   const skills = new Set();
@@ -96,14 +104,17 @@ function buildSkillsIndex(data) {
 
 const SKILLS_INDEX = buildSkillsIndex(portfolioData);
 
+
 function buildLeanProfile(data) {
   let output = "";
 
+  // Identity
   const identity = data?.Personal?.identity;
   if (identity) {
     output += `IDENTITY:\nName: ${identity.name}\nRole: ${identity.role}\nLocation: ${identity.location}\nStatus: ${identity.current_status}\n\n`;
   }
 
+  // Career profile
   if (data?.Career_Profile?.professional_summary) {
     output += `PROFESSIONAL SUMMARY:\n${data.Career_Profile.professional_summary}\n\n`;
   }
@@ -135,6 +146,7 @@ function buildLeanProfile(data) {
     });
   });
 
+  // Achievements
   if (data?.Achievements) {
     output += `===== ACHIEVEMENTS =====\n\n`;
     data.Achievements.forEach((a) => {
@@ -147,6 +159,8 @@ function buildLeanProfile(data) {
 }
 
 const LEAN_PROFILE = buildLeanProfile(portfolioData);
+
+
 
 const SYSTEM_PROMPT = `
 You are ChamaGPT, the AI portfolio assistant representing Chamathka Nethmini.
@@ -180,6 +194,7 @@ Rules:
 Chamathka's Knowledge Base:
 ${KNOWLEDGE}
 `;
+
 
 const JOB_MATCH_PROMPT = `
 You are an AI recruiter assistant analyzing Chamathka Nethmini's profile against a job description.
@@ -240,6 +255,8 @@ Chamathka's Profile:
 ${LEAN_PROFILE}
 `;
 
+
+
 function detectJobDescription(text) {
   const keywords = [
     "responsibilities",
@@ -263,6 +280,8 @@ function detectJobDescription(text) {
   return matches.length >= 3;
 }
 
+
+
 async function callGroq(payload, retries = 2) {
   const response = await fetch(
     "https://api.groq.com/openai/v1/chat/completions",
@@ -283,12 +302,14 @@ async function callGroq(payload, retries = 2) {
     const retryAfterMatch = errorBody?.error?.message?.match(/try again in ([\d.]+)s/);
     const waitMs = retryAfterMatch ? parseFloat(retryAfterMatch[1]) * 1000 : 2000;
 
-    await new Promise((resolve) => setTimeout(resolve, waitMs + 250));
+    await new Promise((resolve) => setTimeout(resolve, waitMs + 250)); // small buffer
     return callGroq(payload, retries - 1);
   }
 
   return response;
 }
+
+
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
