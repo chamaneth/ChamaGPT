@@ -1,33 +1,9 @@
 import portfolioData from "../src/data/data.json" with { type: "json" };
 
-// ===============================
-// BASIC RATE LIMITING (in-memory, best-effort)
-// ===============================
-// NOTE: This is a lightweight, zero-setup rate limiter using an in-memory
-// Map. It works within a single warm serverless instance but resets on
-// cold starts and does NOT share state across multiple instances — so it
-// will catch rapid-fire spam most of the time, but is not a hard guarantee
-// under real load or distributed bot traffic.
-//
-// For proper protection (recommended before heavy public traffic), swap
-// this out for Upstash Redis + @upstash/ratelimit:
-//   1. npm install @upstash/ratelimit @upstash/redis
-//   2. Create a free Redis DB at https://console.upstash.com
-//   3. Add UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN to your
-//      Vercel env vars
-//   4. Replace checkRateLimit() below with:
-//        import { Ratelimit } from "@upstash/ratelimit";
-//        import { Redis } from "@upstash/redis";
-//        const ratelimit = new Ratelimit({
-//          redis: Redis.fromEnv(),
-//          limiter: Ratelimit.slidingWindow(5, "60 s"),
-//        });
-//        const { success } = await ratelimit.limit(ip);
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+const RATE_LIMIT_MAX_REQUESTS = 8;
 
-const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
-const RATE_LIMIT_MAX_REQUESTS = 8; // max requests per IP per window
-
-const requestLog = new Map(); // ip -> array of timestamps
+const requestLog = new Map();
 
 function checkRateLimit(ip) {
   const now = Date.now();
@@ -36,7 +12,7 @@ function checkRateLimit(ip) {
   );
 
   if (timestamps.length >= RATE_LIMIT_MAX_REQUESTS) {
-    requestLog.set(ip, timestamps); // keep pruned list
+    requestLog.set(ip, timestamps);
     return false;
   }
 
@@ -45,23 +21,17 @@ function checkRateLimit(ip) {
   return true;
 }
 
-// ===============================
-// BUILD KNOWLEDGE FROM JSON (full — used for normal chat)
-// ===============================
-
 function buildKnowledge(data) {
   function extract(value, title = "") {
     let output = "";
 
     if (value === null || value === undefined) return output;
 
-    // STRING / NUMBER
     if (typeof value === "string" || typeof value === "number") {
       output += `\n${title}:\n${value}\n\n`;
       return output;
     }
 
-    // ARRAY
     if (Array.isArray(value)) {
       value.forEach((item) => {
         if (typeof item === "string") {
@@ -73,7 +43,6 @@ function buildKnowledge(data) {
       return output;
     }
 
-    // OBJECT
     if (typeof value === "object") {
       Object.entries(value).forEach(([key, val]) => {
         const cleanKey = key.replaceAll("_", " ").toUpperCase();
@@ -94,14 +63,6 @@ function buildKnowledge(data) {
 }
 
 const KNOWLEDGE = buildKnowledge(portfolioData);
-
-// ===============================
-// BUILD FLAT SKILLS INDEX
-// ===============================
-// Pulls every string from any "technologies" array anywhere in the JSON,
-// deduplicated. Gives the model an authoritative, unambiguous skills list
-// to check job requirements against, instead of relying on it to infer
-// skills correctly from long prose.
 
 function buildSkillsIndex(data) {
   const skills = new Set();
@@ -135,30 +96,18 @@ function buildSkillsIndex(data) {
 
 const SKILLS_INDEX = buildSkillsIndex(portfolioData);
 
-// ===============================
-// BUILD LEAN PROFILE (used for job-match — cuts token usage)
-// ===============================
-// Job matching only needs: identity, skill summaries, and project
-// overviews/technologies. It does NOT need every interview_questions /
-// technical_questions array, which make up most of KNOWLEDGE's bulk and
-// were pushing single requests to ~9,800 tokens (Groq free tier caps at
-// 12,000 TPM, so one request could nearly exhaust the whole budget).
-
 function buildLeanProfile(data) {
   let output = "";
 
-  // Identity
   const identity = data?.Personal?.identity;
   if (identity) {
     output += `IDENTITY:\nName: ${identity.name}\nRole: ${identity.role}\nLocation: ${identity.location}\nStatus: ${identity.current_status}\n\n`;
   }
 
-  // Career profile
   if (data?.Career_Profile?.professional_summary) {
     output += `PROFESSIONAL SUMMARY:\n${data.Career_Profile.professional_summary}\n\n`;
   }
 
-  // Skills — summary + technologies only, skip the "questions" arrays
   if (data?.Skills) {
     output += `===== SKILLS =====\n\n`;
     Object.entries(data.Skills).forEach(([category, val]) => {
@@ -170,7 +119,6 @@ function buildLeanProfile(data) {
     });
   }
 
-  // Projects (both Projects and Projects_Additional) — overview + tech only
   ["Projects", "Projects_Additional"].forEach((group) => {
     if (!data[group]) return;
     output += `===== ${group.replaceAll("_", " ").toUpperCase()} =====\n\n`;
@@ -187,7 +135,6 @@ function buildLeanProfile(data) {
     });
   });
 
-  // Achievements
   if (data?.Achievements) {
     output += `===== ACHIEVEMENTS =====\n\n`;
     data.Achievements.forEach((a) => {
@@ -200,10 +147,6 @@ function buildLeanProfile(data) {
 }
 
 const LEAN_PROFILE = buildLeanProfile(portfolioData);
-
-// ===============================
-// NORMAL CHAT PROMPT
-// ===============================
 
 const SYSTEM_PROMPT = `
 You are ChamaGPT, the AI portfolio assistant representing Chamathka Nethmini.
@@ -225,14 +168,18 @@ Rules:
 5. If something is not available in the knowledge base, say:
    "I have not specifically worked on that yet, but I am continuously learning and improving in that area."
 6. For interview questions, answer using: Situation, Technical explanation, Challenge, Learning.
+7. STAY IN SCOPE: You only answer questions about Chamathka — her skills, projects,
+   background, education, experience, and career. You are NOT a general-purpose assistant.
+   If someone asks something unrelated (general knowledge, math, trivia, coding help unrelated
+   to Chamathka's work, requests to write code/essays for them, or anything outside her
+   professional profile), politely decline and redirect. For example:
+   "I'm here to answer questions about Chamathka's background and projects — feel free to ask
+   me about her skills, experience, or paste a job description to see how she matches!"
+   Do not answer the off-topic question itself, even partially, even if you know the answer.
 
 Chamathka's Knowledge Base:
 ${KNOWLEDGE}
 `;
-
-// ===============================
-// JOB MATCH PROMPT (uses the lean profile, not full KNOWLEDGE)
-// ===============================
 
 const JOB_MATCH_PROMPT = `
 You are an AI recruiter assistant analyzing Chamathka Nethmini's profile against a job description.
@@ -293,10 +240,6 @@ Chamathka's Profile:
 ${LEAN_PROFILE}
 `;
 
-// ===============================
-// DETECT JOB POSTING
-// ===============================
-
 function detectJobDescription(text) {
   const keywords = [
     "responsibilities",
@@ -320,14 +263,6 @@ function detectJobDescription(text) {
   return matches.length >= 3;
 }
 
-// ===============================
-// GROQ CALL WITH RETRY/BACKOFF ON RATE LIMIT
-// ===============================
-// Groq's free tier is capped at 12,000 tokens/minute (TPM). When a burst
-// of requests (or one large one) hits that cap, Groq returns 429 with a
-// "try again in Xs" message. Instead of failing immediately, wait the
-// suggested time (or a safe default) and retry once or twice.
-
 async function callGroq(payload, retries = 2) {
   const response = await fetch(
     "https://api.groq.com/openai/v1/chat/completions",
@@ -348,23 +283,18 @@ async function callGroq(payload, retries = 2) {
     const retryAfterMatch = errorBody?.error?.message?.match(/try again in ([\d.]+)s/);
     const waitMs = retryAfterMatch ? parseFloat(retryAfterMatch[1]) * 1000 : 2000;
 
-    await new Promise((resolve) => setTimeout(resolve, waitMs + 250)); // small buffer
+    await new Promise((resolve) => setTimeout(resolve, waitMs + 250));
     return callGroq(payload, retries - 1);
   }
 
   return response;
 }
 
-// ===============================
-// VERCEL API FUNCTION
-// ===============================
-
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  // Rate limit by IP — protects Groq token budget from bot/spam traffic
   const ip =
     req.headers["x-forwarded-for"]?.split(",")[0]?.trim() ||
     req.socket?.remoteAddress ||
@@ -382,7 +312,6 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Question is required" });
   }
 
-  // Cap input length — prevents huge pasted text from blowing the token budget
   const MAX_QUESTION_LENGTH = 3000;
   if (question.length > MAX_QUESTION_LENGTH) {
     return res.status(400).json({
